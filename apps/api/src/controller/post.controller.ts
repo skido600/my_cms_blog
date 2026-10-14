@@ -5,6 +5,8 @@ import { createPostSchema } from "../validator/post.schema";
 import type { Context } from "hono";
 import { uploadImage } from "../util/uploadimage";
 import { generateUniqueSlug } from "../util/slug";
+import { redis } from "../util/redis";
+import { calculateReadTime } from "../util/read-time";
 
 export const createPost = async (c: Context) => {
   try {
@@ -100,9 +102,10 @@ export const createPost = async (c: Context) => {
         header_Image_UrL: uploadedImage.url,
         header_Image_public: uploadedImage.publicId,
         featured,
+        readTime: calculateReadTime(description),
       })
       .returning();
-
+    await redis.del("posts:all", "posts:featured");
     return c.json(
       {
         success: true,
@@ -204,13 +207,31 @@ export const getPostBySlug = async (c: Context) => {
 };
 export const getAllPosts = async (c: Context) => {
   try {
+    // await redis.del("posts:all", "posts:featured");
+    const cacheKey = "posts:all";
+
+    const cachedPosts = await redis.get(cacheKey);
+
+    console.log(cachedPosts);
+    if (cachedPosts) {
+      return c.json({
+        success: true,
+        source: "redis",
+        posts: JSON.parse(cachedPosts),
+      });
+    }
+
+    // 2. Cache miss: fetch from PostgreSQL
     const allPosts = await db
       .select()
       .from(posts)
       .orderBy(desc(posts.createdAt));
+    const THREE_DAYS = 3 * 24 * 60 * 60;
+    await redis.set(cacheKey, JSON.stringify(allPosts), "EX", THREE_DAYS);
 
     return c.json({
       success: true,
+      source: "postgres",
       posts: allPosts,
     });
   } catch (error) {
@@ -227,7 +248,6 @@ export const getAllPosts = async (c: Context) => {
 };
 
 //  UPDATE POST
-
 export const updatePost = async (c: Context) => {
   try {
     const postId = c.req.param("id");
@@ -243,11 +263,6 @@ export const updatePost = async (c: Context) => {
     }
 
     const body = await c.req.parseBody();
-
-    /* -----------------------------
-       Find existing post
-    ----------------------------- */
-
     const [existingPost] = await db
       .select()
       .from(posts)
@@ -263,10 +278,6 @@ export const updatePost = async (c: Context) => {
         404,
       );
     }
-
-    /* -----------------------------
-       Categories
-    ----------------------------- */
 
     let categories: string[] = [];
 
@@ -300,10 +311,6 @@ export const updatePost = async (c: Context) => {
       );
     }
 
-    /* -----------------------------
-       Validate data
-    ----------------------------- */
-
     const result = createPostSchema.safeParse({
       title: body.title,
       description: body.description,
@@ -323,10 +330,6 @@ export const updatePost = async (c: Context) => {
 
     const { title, description, featured } = result.data;
 
-    /* -----------------------------
-       Auth
-    ----------------------------- */
-
     const user = c.get("userId");
 
     if (!user?.id) {
@@ -339,19 +342,11 @@ export const updatePost = async (c: Context) => {
       );
     }
 
-    /* -----------------------------
-       Generate new slug
-    ----------------------------- */
-
     let slug = existingPost.slug;
 
     if (title !== existingPost.title) {
       slug = await generateUniqueSlug(title);
     }
-
-    /* -----------------------------
-       Prepare update
-    ----------------------------- */
 
     const updateData: any = {
       title,
@@ -359,13 +354,8 @@ export const updatePost = async (c: Context) => {
       description,
       categories,
       featured,
+      readTime: calculateReadTime(description),
     };
-
-    /* -----------------------------
-       Header image
-       Only replace if a new file
-       was actually uploaded
-    ----------------------------- */
 
     const image = body.headerImage;
 
@@ -376,16 +366,12 @@ export const updatePost = async (c: Context) => {
       updateData.header_Image_public = uploadedImage.publicId;
     }
 
-    /* -----------------------------
-       Update database
-    ----------------------------- */
-
     const [updatedPost] = await db
       .update(posts)
       .set(updateData)
       .where(eq(posts.id, postId))
       .returning();
-
+    await redis.del("posts:all", "posts:featured");
     return c.json({
       success: true,
       message: "Post updated successfully",
@@ -405,7 +391,6 @@ export const updatePost = async (c: Context) => {
 };
 
 //  DELETE POST
-
 export const deletePost = async (c: Context) => {
   try {
     const postId = c.req.param("id");
@@ -426,6 +411,7 @@ export const deletePost = async (c: Context) => {
       .where(eq(posts.id, postId))
       .limit(1);
 
+    await redis.del("posts:all", "posts:featured");
     if (!post) {
       return c.json(
         {
@@ -444,6 +430,51 @@ export const deletePost = async (c: Context) => {
     });
   } catch (error) {
     console.error("Delete post error:", error);
+
+    return c.json(
+      {
+        success: false,
+        message: "Server error",
+      },
+      500,
+    );
+  }
+};
+
+export const getAllFeaturedPosts = async (c: Context) => {
+  try {
+    const cacheKey = "posts:featured";
+
+    const cachedPosts = await redis.get(cacheKey);
+
+    if (cachedPosts) {
+      return c.json({
+        success: true,
+        source: "redis",
+        total: JSON.parse(cachedPosts).length,
+        posts: JSON.parse(cachedPosts),
+      });
+    }
+
+    const featuredPosts = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.featured, true))
+      .orderBy(desc(posts.createdAt));
+
+    // 3. Cache for 3 days
+    const THREE_DAYS = 3 * 24 * 60 * 60;
+
+    await redis.set(cacheKey, JSON.stringify(featuredPosts), "EX", THREE_DAYS);
+
+    return c.json({
+      success: true,
+      source: "postgres",
+      total: featuredPosts.length,
+      posts: featuredPosts,
+    });
+  } catch (error) {
+    console.error("Get featured posts error:", error);
 
     return c.json(
       {

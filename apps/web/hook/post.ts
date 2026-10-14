@@ -5,6 +5,7 @@ import {
   getPostBySlug,
   deletePost,
   updatePost,
+  getAllFeaturedPosts,
 } from "../services/post";
 
 export const useCreatePost = () => {
@@ -14,6 +15,9 @@ export const useCreatePost = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["posts"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["featured-posts"],
       });
     },
   });
@@ -25,7 +29,12 @@ export const useGetAllPosts = () => {
     queryFn: getAllPosts,
   });
 };
-
+export const getAllFeatured = () => {
+  return useQuery({
+    queryKey: ["featured-posts"],
+    queryFn: getAllFeaturedPosts,
+  });
+};
 export const useGetPostBySlug = (slug: string) => {
   return useQuery({
     queryKey: ["post", slug],
@@ -33,8 +42,6 @@ export const useGetPostBySlug = (slug: string) => {
     enabled: !!slug,
   });
 };
-
-//    UPDATE POST
 
 export const useUpdatePost = () => {
   const queryClient = useQueryClient();
@@ -54,8 +61,6 @@ export const useUpdatePost = () => {
     },
   });
 };
-
-//    DELETE POST
 
 export const useDeletePost = () => {
   const queryClient = useQueryClient();

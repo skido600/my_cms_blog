@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useLogin } from "../../../hook/auth";
+import { useAuthStore } from "../../../store/auth.store";
 
 type FormData = {
   email: string;
@@ -33,13 +34,14 @@ export default function Login() {
   const login = useLogin();
 
   const loading = login.isPending;
-
+  const setEmail = useAuthStore((state) => state.setEmail);
   const onSubmit = async (data: FormData) => {
     try {
-      await login.mutateAsync(data);
-
+      const body = await login.mutateAsync(data);
+      console.log(body, "body");
       toast.success("Signed in successfully");
 
+      setEmail(data.email);
       router.push("/authorized/admin");
     } catch (error) {
       if (error instanceof Error) {

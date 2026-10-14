@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Mona_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "../components/ThemeProvider";
 import { ReactQueryProvider } from "../context/TanstackQuery";
 import { Toaster } from "sonner";
+import NavbarWrapper from "../components/NavbarWrapper";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
+const monaSans = Mona_Sans({
+  variable: "--font-mona-sans",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -26,19 +24,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <ThemeProvider>
-        <ReactQueryProvider>
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 3000,
-            }}
-          />
-          <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${monaSans.variable} `}>
+        <ThemeProvider>
+          <ReactQueryProvider>
+            <NavbarWrapper />
             {children}
-          </body>
-        </ReactQueryProvider>
-      </ThemeProvider>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 3000,
+              }}
+            />
+          </ReactQueryProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

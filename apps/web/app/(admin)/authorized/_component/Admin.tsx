@@ -12,17 +12,12 @@ import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
 import { useCreatePost } from "../../../../hook/post";
 
-// The editor touches `window`, so it must be client-only in Next.js.
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), {
   ssr: false,
   loading: () => (
-    <div className="h-[520px] animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-800" />
+    <div className="h-130 animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-800" />
   ),
 });
-
-/* -------------------------------------------------------------------------- */
-/*                                  Constants                                 */
-/* -------------------------------------------------------------------------- */
 
 const DRAFT_KEY = "blog-admin-draft-v1";
 const MAX_IMAGE_MB = 10;
@@ -41,10 +36,6 @@ const errorToastStyle = {
 
 const inputClass =
   "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 dark:border-neutral-700 dark:bg-[#141414] dark:text-white dark:placeholder:text-neutral-500";
-
-/* -------------------------------------------------------------------------- */
-/*                                    Types                                   */
-/* -------------------------------------------------------------------------- */
 
 type ArticleImage = {
   id: string;
@@ -72,20 +63,8 @@ const emptyForm: FormState = {
   featured: false,
 };
 
-/* -------------------------------------------------------------------------- */
-/*                                  Helpers                                   */
-/* -------------------------------------------------------------------------- */
-
-const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
 // Matches markdown images that point at blob: URLs.
 const BLOB_IMAGE_RE = /!\[[^\]]*\]\(blob:[^)]*\)\n*/g;
-
-const imageMarkdown = (img: ArticleImage) => {
-  const alt = img.file.name.replace(/\.[^.]+$/, "").replace(/[\[\]]/g, "");
-
-  return `![${alt}](${img.url})`;
-};
 
 const formatBytes = (bytes: number) =>
   bytes < 1024 * 1024
@@ -104,11 +83,6 @@ function validateImage(file: File): string | null {
   return null;
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                    Hooks                                   */
-/* -------------------------------------------------------------------------- */
-
-/** Object URL for a File that is revoked automatically. */
 function useObjectUrl(file: File | null) {
   const [url, setUrl] = useState<string | null>(null);
 
@@ -167,10 +141,6 @@ function useIsDark() {
   return isDark;
 }
 
-/* -------------------------------------------------------------------------- */
-/*                               Small components                             */
-/* -------------------------------------------------------------------------- */
-
 function Card({
   title,
   hint,
@@ -211,10 +181,6 @@ function FieldError({ message }: { message?: string }) {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                    Page                                    */
-/* -------------------------------------------------------------------------- */
-
 export default function Admin() {
   const [formData, setFormData] = useState<FormState>(emptyForm);
   const [categoryInput, setCategoryInput] = useState("");
@@ -234,10 +200,6 @@ export default function Admin() {
 
   imagesRef.current = formData.articleImages;
 
-  /* ------------------------------------------------------------------------ */
-  /*                            React Hook Form                               */
-  /* ------------------------------------------------------------------------ */
-
   const {
     register,
     control,
@@ -251,8 +213,6 @@ export default function Admin() {
     mode: "onSubmit",
     reValidateMode: "onChange",
   });
-
-  /* ------------------------------ Draft restore --------------------------- */
 
   useEffect(() => {
     try {
@@ -290,8 +250,6 @@ export default function Admin() {
 
     draftLoaded.current = true;
   }, [setValue]);
-
-  /* ------------------------------ Draft autosave -------------------------- */
 
   useEffect(() => {
     if (!draftLoaded.current) return;
@@ -760,8 +718,8 @@ export default function Admin() {
                 value={formData.title}
                 onChange={(e) => update("title", e.target.value)}
                 aria-invalid={!!errors.title}
-                className={`${inputClass} !py-3 text-lg font-semibold ${
-                  errors.title ? "!border-red-500 !ring-red-500/30" : ""
+                className={`${inputClass} py-3! text-lg font-semibold ${
+                  errors.title ? "border-red-500! ring-red-500/30!" : ""
                 }`}
               />
 
@@ -837,8 +795,6 @@ export default function Admin() {
             </Card>
           </div>
 
-          {/* ------------------------------- Sidebar -------------------------------- */}
-
           <aside className="space-y-6">
             {/* Visibility */}
 
@@ -887,7 +843,7 @@ export default function Admin() {
                     className="aspect-video w-full object-cover"
                   />
 
-                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/70 to-transparent p-2 text-xs text-white">
+                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-linear-to-t from-black/70 to-transparent p-2 text-xs text-white">
                     <span className="truncate">
                       {formData.headerImage?.name} ·{" "}
                       {formData.headerImage &&
@@ -1016,7 +972,7 @@ export default function Admin() {
                           ? "Add another…"
                           : "e.g. Technology"
                       }
-                      className="min-w-[110px] flex-1 bg-transparent px-1 py-1 text-sm text-neutral-900 outline-none placeholder:text-neutral-400 dark:text-white"
+                      className="min-w-27.5 flex-1 bg-transparent px-1 py-1 text-sm text-neutral-900 outline-none placeholder:text-neutral-400 dark:text-white"
                     />
                   )}
                 />
@@ -1024,8 +980,6 @@ export default function Admin() {
 
               <FieldError message={errors.categories?.message} />
             </Card>
-
-            {/* Article images */}
           </aside>
         </div>
       </form>

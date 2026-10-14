@@ -21,7 +21,7 @@ export const posts = pgTable(
   "posts",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-
+    readTime: integer("read_time").notNull().default(1),
     title: varchar("title").notNull(),
 
     slug: varchar("slug").notNull(),

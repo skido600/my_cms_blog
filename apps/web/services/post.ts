@@ -30,10 +30,6 @@ export const getAllPosts = async () => {
   return data;
 };
 
-/* =========================
-   GET POST BY SLUG
-========================= */
-
 export const getPostBySlug = async (slug: string) => {
   const response = await fetch(`${API_URL}/${encodeURIComponent(slug)}`, {
     method: "GET",
@@ -48,10 +44,6 @@ export const getPostBySlug = async (slug: string) => {
 
   return data;
 };
-
-/* =========================
-   UPDATE POST
-========================= */
 
 export const updatePost = async (id: string, form: FormData) => {
   const response = await fetch(`${API_URL}/${encodeURIComponent(id)}`, {
@@ -69,10 +61,6 @@ export const updatePost = async (id: string, form: FormData) => {
   return data;
 };
 
-/* =========================
-   DELETE POST
-========================= */
-
 export const deletePost = async (id: string) => {
   const response = await fetch(`${API_URL}/${encodeURIComponent(id)}`, {
     method: "DELETE",
@@ -83,6 +71,21 @@ export const deletePost = async (id: string) => {
 
   if (!response.ok) {
     throw new Error(data.message || "Failed to delete post");
+  }
+
+  return data;
+};
+
+export const getAllFeaturedPosts = async () => {
+  const response = await fetch(`${API_URL}/featured`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch post");
   }
 
   return data;

@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
-
+import { useLogout } from "../../../../hook/auth";
 import { ThemeToggle } from "../../../../components/ThemeToggle";
 import { Menu, Home, Box, X, LogOut, LandPlot } from "lucide-react";
+import { useAuthStore } from "../../../../store/auth.store";
 
 const successToastStyle = {
   backgroundColor: "#38A169",
@@ -30,29 +31,13 @@ const navItems = [
 function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
-
+  const email = useAuthStore((state) => state.email);
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<StoredUser | null>(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  /* ------------------------------ Load user ------------------------------ */
-
-  //   useEffect(() => {
-  //     try {
-  //       const stored = localStorage.getItem("user");
-  //       if (stored) setUser(JSON.parse(stored));
-  //     } catch (error) {
-  //       console.error("Error reading user from localStorage:", error);
-  //     }
-  //   }, []);
-
-  /* ------------------- Close the drawer on route change ------------------- */
 
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
-
-  /* ----- Mobile drawer: Escape to close, lock scroll, close on resize ----- */
 
   useEffect(() => {
     if (!isOpen) return;
@@ -78,53 +63,12 @@ function Sidebar() {
       mq.removeEventListener("change", onResize);
     };
   }, [isOpen]);
-
-  /* -------------------------------- Logout -------------------------------- */
-
-  //   const handleLogout = async () => {
-  //     if (isLoggingOut) return;
-  //     setIsLoggingOut(true);
-
-  //     // Read the token here, not during render: localStorage doesn't exist on the server.
-  //     let token: string | null = null;
-  //     try {
-  //       token = localStorage.getItem("token");
-  //     } catch {
-  //       /* ignore */
-  //     }
-
-  //     try {
-  //       const response = await fetch(LOGOUT_URL, {
-  //         method: "POST",
-  //         headers: { Authorization: `Bearer ${token}` },
-  //         credentials: "include",
-  //       });
-
-  //       const data = await response.json().catch(() => ({}));
-
-  //       if (!response.ok) throw new Error(data.message || "Logout failed");
-
-  //       toast.success(data.message || "Logged out successfully", {
-  //         style: successToastStyle,
-  //       });
-  //     } catch (error) {
-  //       toast.error((error as Error).message || "Something went wrong", {
-  //         style: errorToastStyle,
-  //       });
-  //     } finally {
-  //       // Always end the session on this device, even if the server call failed.
-  //       try {
-  //         localStorage.removeItem("user");
-  //         localStorage.removeItem("token");
-  //       } catch {
-  //         /* ignore */
-  //       }
-  //       setIsLoggingOut(false);
-  //       router.push("/login");
-  //     }
-  //   };
-
-  /* --------------------------------- Render -------------------------------- */
+  const logoutMutation = useLogout();
+  const handleLogout = async () => {
+    await logoutMutation.mutateAsync();
+    toast.success("Logged out successfully", { style: successToastStyle });
+    router.push("/login");
+  };
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
@@ -226,7 +170,7 @@ function Sidebar() {
                 </>
               ) : (
                 <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                  Not signed in
+                  {email ? `Logged in as ${email}` : "Loading user..."}
                 </p>
               )}
             </div>
@@ -234,11 +178,11 @@ function Sidebar() {
 
           <button
             type="button"
-            // onClick={handleLogout}
-            disabled={isLoggingOut}
+            onClick={handleLogout}
+            disabled={logoutMutation.isPending}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-300 dark:hover:bg-red-500/10 dark:hover:text-red-400">
             <LogOut className="h-5 w-5 shrink-0" aria-hidden />
-            {isLoggingOut ? "Signing out…" : "Logout"}
+            {logoutMutation.isPending ? "Signing out…" : "Logout"}
           </button>
         </div>
       </aside>

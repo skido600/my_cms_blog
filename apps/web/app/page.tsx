@@ -1,22 +1,11 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
-
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
+import Hero from "../components/Hero";
+import RecentPosts from "../components/Recentposts";
+RecentPosts;
+export default function Home() {
   return (
     <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
+      <Hero />
+      <RecentPosts />
     </>
   );
-};
-
-export default function Home() {
-  return <div>hey</div>;
 }
