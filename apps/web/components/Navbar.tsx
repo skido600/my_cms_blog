@@ -4,11 +4,11 @@ import { useState } from "react";
 import { FaGithub, FaLinkedin, FaXTwitter } from "react-icons/fa6";
 import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
-
+import { siteMetadata } from "../helper/data";
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "About", to: "/about" },
-  { label: "Contact", to: "/contact" },
+  //   { label: "Contact", to: "/contact" },
 ];
 
 interface NavLink {
@@ -21,13 +21,6 @@ interface MobileNavProps {
   navLinks: NavLink[];
   click: boolean;
 }
-
-const siteMetadata = {
-  linkedin: "https://www.linkedin.com/in/leo-wave-309637239",
-  twitter: "https://x.com/Momentum1962",
-  github: "https://github.com/skido600",
-  FaWhatsapp: "https://wa.me/+2349065849502",
-};
 
 const Nav = () => {
   const [click, setClick] = useState(false);

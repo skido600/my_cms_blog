@@ -156,13 +156,6 @@ function Feature() {
               Hand-picked stories and ideas worth your time.
             </p>
           </div>
-
-          <Link
-            href="/posts"
-            className="hidden items-center gap-1 text-sm font-medium text-neutral-950 hover:underline sm:flex dark:text-white">
-            View all
-            <ArrowRight size={16} />
-          </Link>
         </div>
 
         {isLoading ? (

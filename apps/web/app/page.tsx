@@ -1,11 +1,12 @@
 import Hero from "../components/Hero";
-import RecentPosts from "../components/Recentposts";
-RecentPosts;
+import Feature from "../components/FeatureMain";
+import Recent from "../components/Recent";
 export default function Home() {
   return (
     <>
       <Hero />
-      <RecentPosts />
+      <Feature />
+      <Recent />
     </>
   );
 }

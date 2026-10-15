@@ -1,3 +1,4 @@
+import Image from "next/image";
 export function PostImage({
   header_Image_UrL,
   title,
@@ -11,10 +12,12 @@ export function PostImage({
     <div
       className={`relative overflow-hidden bg-linear-to-br from-neutral-200 to-neutral-300 dark:from-neutral-800 dark:to-neutral-700 ${className}`}>
       {header_Image_UrL && (
-        <img
+        <Image
           src={header_Image_UrL}
           alt={title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
       )}
     </div>

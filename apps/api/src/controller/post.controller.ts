@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, arrayContains } from "drizzle-orm";
 import { db } from "../database";
 import { posts } from "../database/schema";
 import { createPostSchema } from "../validator/post.schema";
@@ -23,10 +23,7 @@ export const createPost = async (c: Context) => {
       }
     } catch {
       return c.json(
-        {
-          success: false,
-          message: "Invalid categories format",
-        },
+        { success: false, message: "Invalid categories format" },
         400,
       );
     }
@@ -53,42 +50,28 @@ export const createPost = async (c: Context) => {
 
     if (!result.success) {
       return c.json(
-        {
-          success: false,
-          message: result.error.issues[0].message,
-        },
+        { success: false, message: result.error.issues[0].message },
         400,
       );
     }
 
     const { title, description, featured } = result.data;
-
     const user = c.get("userId");
 
     if (!user?.id) {
-      return c.json(
-        {
-          success: false,
-          message: "Unauthorized",
-        },
-        401,
-      );
+      return c.json({ success: false, message: "Unauthorized" }, 401);
     }
 
     const image = body.headerImage;
 
     if (!(image instanceof File)) {
       return c.json(
-        {
-          success: false,
-          message: "Header image is required",
-        },
+        { success: false, message: "Header image is required" },
         400,
       );
     }
 
     const slug = await generateUniqueSlug(title);
-
     const uploadedImage = await uploadImage(image);
 
     const [post] = await db
@@ -105,25 +88,28 @@ export const createPost = async (c: Context) => {
         readTime: calculateReadTime(description),
       })
       .returning();
-    await redis.del("posts:all", "posts:featured");
+
+    await redis.del(
+      "posts:all",
+      "posts:featured",
+      "posts:recent",
+      "posts:categories",
+    );
+
+    const { header_Image_public, ...postWithoutPublicId } = post;
+
     return c.json(
       {
         success: true,
         message: "Post created successfully",
-        post,
+        post: postWithoutPublicId,
       },
       201,
     );
   } catch (error) {
     console.error("Create post error:", error);
 
-    return c.json(
-      {
-        success: false,
-        message: "Server error",
-      },
-      500,
-    );
+    return c.json({ success: false, message: "Server error" }, 500);
   }
 };
 
@@ -132,13 +118,7 @@ export const getPostBySlug = async (c: Context) => {
     const slug = c.req.param("slug");
 
     if (!slug) {
-      return c.json(
-        {
-          success: false,
-          message: "Slug is required",
-        },
-        400,
-      );
+      return c.json({ success: false, message: "Slug is required" }, 400);
     }
 
     const [post] = await db
@@ -148,16 +128,9 @@ export const getPostBySlug = async (c: Context) => {
       .limit(1);
 
     if (!post) {
-      return c.json(
-        {
-          success: false,
-          message: "Post not found",
-        },
-        404,
-      );
+      return c.json({ success: false, message: "Post not found" }, 404);
     }
 
-    // Get visitor IP
     const forwardedFor = c.req.header("x-forwarded-for");
 
     const ip =
@@ -165,13 +138,7 @@ export const getPostBySlug = async (c: Context) => {
       c.req.header("x-real-ip") ||
       "unknown";
 
-    // Get browser/device information
-    const userAgent = c.req.header("user-agent") || "unknown";
-
-    // Current IPs that have viewed this post
     const viewedIPs = post.viewedIPs ?? [];
-
-    // Check if this IP already viewed this post
     const alreadyViewed = viewedIPs.includes(ip);
 
     if (!alreadyViewed && ip !== "unknown") {
@@ -186,83 +153,80 @@ export const getPostBySlug = async (c: Context) => {
         .where(eq(posts.id, post.id));
     }
 
+    const { header_Image_public, ...postWithoutPublicId } = post;
+
     return c.json({
       success: true,
       post: {
-        ...post,
+        ...postWithoutPublicId,
         views: alreadyViewed ? post.views : post.views + 1,
       },
     });
   } catch (error) {
     console.error("Get post by slug error:", error);
 
-    return c.json(
-      {
-        success: false,
-        message: "Server error",
-      },
-      500,
-    );
+    return c.json({ success: false, message: "Server error" }, 500);
   }
 };
+
 export const getAllPosts = async (c: Context) => {
   try {
-    // await redis.del("posts:all", "posts:featured");
     const cacheKey = "posts:all";
-
     const cachedPosts = await redis.get(cacheKey);
 
-    console.log(cachedPosts);
     if (cachedPosts) {
+      const postsWithoutPublicId = JSON.parse(cachedPosts).map(
+        ({ header_Image_public, ...post }: any) => post,
+      );
+
       return c.json({
         success: true,
         source: "redis",
-        posts: JSON.parse(cachedPosts),
+        posts: postsWithoutPublicId,
       });
     }
 
-    // 2. Cache miss: fetch from PostgreSQL
     const allPosts = await db
       .select()
       .from(posts)
       .orderBy(desc(posts.createdAt));
+
+    const postsWithoutPublicId = allPosts.map(
+      ({ header_Image_public, ...post }) => post,
+    );
+
     const THREE_DAYS = 3 * 24 * 60 * 60;
-    await redis.set(cacheKey, JSON.stringify(allPosts), "EX", THREE_DAYS);
+
+    await redis.set(
+      cacheKey,
+      JSON.stringify(postsWithoutPublicId),
+      "EX",
+      THREE_DAYS,
+    );
 
     return c.json({
       success: true,
       source: "postgres",
-      posts: allPosts,
+      posts: postsWithoutPublicId,
     });
   } catch (error) {
     console.error("Get all posts error:", error);
 
-    return c.json(
-      {
-        success: false,
-        message: "Server error",
-      },
-      500,
-    );
+    return c.json({ success: false, message: "Server error" }, 500);
   }
 };
 
-//  UPDATE POST
+// UPDATE POST
 export const updatePost = async (c: Context) => {
   try {
     const postId = c.req.param("id");
 
     if (!postId) {
-      return c.json(
-        {
-          success: false,
-          message: "Post ID is required",
-        },
-        400,
-      );
+      return c.json({ success: false, message: "Post ID is required" }, 400);
     }
 
     const body = await c.req.parseBody();
+
     const [existingPost] = await db
       .select()
       .from(posts)
@@ -270,13 +234,7 @@ export const updatePost = async (c: Context) => {
       .limit(1);
 
     if (!existingPost) {
-      return c.json(
-        {
-          success: false,
-          message: "Post not found",
-        },
-        404,
-      );
+      return c.json({ success: false, message: "Post not found" }, 404);
     }
 
     let categories: string[] = [];
@@ -290,10 +248,7 @@ export const updatePost = async (c: Context) => {
       }
     } catch {
       return c.json(
-        {
-          success: false,
-          message: "Invalid categories format",
-        },
+        { success: false, message: "Invalid categories format" },
         400,
       );
     }
@@ -320,26 +275,16 @@ export const updatePost = async (c: Context) => {
 
     if (!result.success) {
       return c.json(
-        {
-          success: false,
-          message: result.error.issues[0].message,
-        },
+        { success: false, message: result.error.issues[0].message },
         400,
       );
     }
 
     const { title, description, featured } = result.data;
-
     const user = c.get("userId");
 
     if (!user?.id) {
-      return c.json(
-        {
-          success: false,
-          message: "Unauthorized",
-        },
-        401,
-      );
+      return c.json({ success: false, message: "Unauthorized" }, 401);
     }
 
     let slug = existingPost.slug;
@@ -371,38 +316,35 @@ export const updatePost = async (c: Context) => {
       .set(updateData)
       .where(eq(posts.id, postId))
       .returning();
-    await redis.del("posts:all", "posts:featured");
+
+    await redis.del(
+      "posts:all",
+      "posts:featured",
+      "posts:recent",
+      "posts:categories",
+    );
+
+    const { header_Image_public, ...postWithoutPublicId } = updatedPost;
+
     return c.json({
       success: true,
       message: "Post updated successfully",
-      post: updatedPost,
+      post: postWithoutPublicId,
     });
   } catch (error) {
     console.error("Update post error:", error);
 
-    return c.json(
-      {
-        success: false,
-        message: "Server error",
-      },
-      500,
-    );
+    return c.json({ success: false, message: "Server error" }, 500);
   }
 };
 
-//  DELETE POST
+// DELETE POST
 export const deletePost = async (c: Context) => {
   try {
     const postId = c.req.param("id");
 
     if (!postId) {
-      return c.json(
-        {
-          success: false,
-          message: "Post ID is required",
-        },
-        400,
-      );
+      return c.json({ success: false, message: "Post ID is required" }, 400);
     }
 
     const [post] = await db
@@ -411,18 +353,18 @@ export const deletePost = async (c: Context) => {
       .where(eq(posts.id, postId))
       .limit(1);
 
-    await redis.del("posts:all", "posts:featured");
     if (!post) {
-      return c.json(
-        {
-          success: false,
-          message: "Post not found",
-        },
-        404,
-      );
+      return c.json({ success: false, message: "Post not found" }, 404);
     }
 
     await db.delete(posts).where(eq(posts.id, postId));
+
+    await redis.del(
+      "posts:all",
+      "posts:featured",
+      "posts:recent",
+      "posts:categories",
+    );
 
     return c.json({
       success: true,
@@ -431,28 +373,25 @@ export const deletePost = async (c: Context) => {
   } catch (error) {
     console.error("Delete post error:", error);
 
-    return c.json(
-      {
-        success: false,
-        message: "Server error",
-      },
-      500,
-    );
+    return c.json({ success: false, message: "Server error" }, 500);
   }
 };
 
 export const getAllFeaturedPosts = async (c: Context) => {
   try {
     const cacheKey = "posts:featured";
-
     const cachedPosts = await redis.get(cacheKey);
 
     if (cachedPosts) {
+      const featuredPosts = JSON.parse(cachedPosts).map(
+        ({ header_Image_public, ...post }: any) => post,
+      );
+
       return c.json({
         success: true,
         source: "redis",
-        total: JSON.parse(cachedPosts).length,
-        posts: JSON.parse(cachedPosts),
+        total: featuredPosts.length,
+        posts: featuredPosts,
       });
     }
 
@@ -462,26 +401,146 @@ export const getAllFeaturedPosts = async (c: Context) => {
       .where(eq(posts.featured, true))
       .orderBy(desc(posts.createdAt));
 
-    // 3. Cache for 3 days
+    const postsWithoutPublicId = featuredPosts.map(
+      ({ header_Image_public, ...post }) => post,
+    );
+
     const THREE_DAYS = 3 * 24 * 60 * 60;
 
-    await redis.set(cacheKey, JSON.stringify(featuredPosts), "EX", THREE_DAYS);
+    await redis.set(
+      cacheKey,
+      JSON.stringify(postsWithoutPublicId),
+      "EX",
+      THREE_DAYS,
+    );
 
     return c.json({
       success: true,
       source: "postgres",
-      total: featuredPosts.length,
-      posts: featuredPosts,
+      total: postsWithoutPublicId.length,
+      posts: postsWithoutPublicId,
     });
   } catch (error) {
     console.error("Get featured posts error:", error);
 
-    return c.json(
-      {
-        success: false,
-        message: "Server error",
-      },
-      500,
+    return c.json({ success: false, message: "Server error" }, 500);
+  }
+};
+
+export const getRecentPosts = async (c: Context) => {
+  try {
+    const cacheKey = "posts:recent";
+    const cachedPosts = await redis.get(cacheKey);
+
+    if (cachedPosts) {
+      const recentPosts = JSON.parse(cachedPosts).map(
+        ({ header_Image_public, ...post }: any) => post,
+      );
+
+      return c.json({
+        success: true,
+        source: "redis",
+        total: recentPosts.length,
+        posts: recentPosts,
+      });
+    }
+
+    const recentPosts = await db
+      .select()
+      .from(posts)
+      .orderBy(desc(posts.createdAt))
+      .limit(6);
+
+    const postsWithoutPublicId = recentPosts.map(
+      ({ header_Image_public, ...post }) => post,
     );
+
+    const THREE_DAYS = 3 * 24 * 60 * 60;
+
+    await redis.set(
+      cacheKey,
+      JSON.stringify(postsWithoutPublicId),
+      "EX",
+      THREE_DAYS,
+    );
+
+    return c.json({
+      success: true,
+      source: "postgres",
+      total: postsWithoutPublicId.length,
+      posts: postsWithoutPublicId,
+    });
+  } catch (error) {
+    console.error("Get recent posts error:", error);
+
+    return c.json({ success: false, message: "Server error" }, 500);
+  }
+};
+
+export const getAllCategories = async (c: Context) => {
+  try {
+    const cacheKey = "posts:categories";
+    const cachedCategories = await redis.get(cacheKey);
+
+    if (cachedCategories) {
+      return c.json({
+        success: true,
+        source: "redis",
+        categories: JSON.parse(cachedCategories),
+      });
+    }
+
+    const allPosts = await db
+      .select({
+        categories: posts.categories,
+      })
+      .from(posts);
+
+    const categories = [
+      ...new Set(allPosts.flatMap((post) => post.categories ?? [])),
+    ].sort((a, b) => a.localeCompare(b));
+
+    const THREE_DAYS = 3 * 24 * 60 * 60;
+
+    await redis.set(cacheKey, JSON.stringify(categories), "EX", THREE_DAYS);
+
+    return c.json({
+      success: true,
+      source: "postgres",
+      categories,
+    });
+  } catch (error) {
+    console.error("Get all categories error:", error);
+
+    return c.json({ success: false, message: "Server error" }, 500);
+  }
+};
+
+export const getPostsByCategory = async (c: Context) => {
+  try {
+    const category = c.req.query("category");
+
+    if (!category) {
+      return c.json({ success: false, message: "Category is required" }, 400);
+    }
+
+    const result = await db
+      .select()
+      .from(posts)
+      .where(arrayContains(posts.categories, [category]))
+      .orderBy(desc(posts.createdAt));
+
+    const postsWithoutPublicId = result.map(
+      ({ header_Image_public, ...post }) => post,
+    );
+
+    return c.json({
+      success: true,
+      posts: postsWithoutPublicId,
+    });
+  } catch (error) {
+    console.error("Get posts by category error:", error);
+
+    return c.json({ success: false, message: "Server error" }, 500);
   }
 };

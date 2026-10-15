@@ -7,7 +7,7 @@ const app = new Hono();
 app.use(logger());
 
 app.notFound((c) => {
-  return c.json({ message: "Not Found" }, 404);
+  return c.json({ message: "url Not Found" }, 404);
 });
 
 app.onError((err, c) => {

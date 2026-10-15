@@ -5,6 +5,7 @@ import { ThemeProvider } from "../components/ThemeProvider";
 import { ReactQueryProvider } from "../context/TanstackQuery";
 import { Toaster } from "sonner";
 import NavbarWrapper from "../components/NavbarWrapper";
+import FooterWrapper from "../components/FooterWrapper";
 
 const monaSans = Mona_Sans({
   variable: "--font-mona-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
                 duration: 3000,
               }}
             />
+            <FooterWrapper />
           </ReactQueryProvider>
         </ThemeProvider>
       </body>
