@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import Nav from "./Navbar";
-import Footer from "./Footer";
 
 export default function NavbarWrapper() {
   const pathname = usePathname();
@@ -11,14 +10,11 @@ export default function NavbarWrapper() {
     "/login",
     "/authorized/all",
     "/authorized/admin",
+    "/verify",
+    "/unsubscribe",
   ].includes(pathname);
 
   if (hideNavbar) return null;
 
-  return (
-    <>
-      <Nav />
-  
-    </>
-  );
+  return <Nav />;
 }

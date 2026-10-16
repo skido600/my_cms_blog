@@ -125,3 +125,24 @@ export const getPostsByCategory = async (category: string) => {
 
   return res.json();
 };
+
+import { cache } from "react";
+
+export const getPostBySlugServer = cache(async (slug: string) => {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+    const res = await fetch(
+      `${baseUrl}${API_URL}/${encodeURIComponent(slug)}`,
+      {
+        next: { revalidate: 60 },
+      },
+    );
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data ?? json;
+  } catch (err) {
+    console.error("getPostBySlugServer failed:", err);
+    return null;
+  }
+});

@@ -50,14 +50,6 @@ export const posts = pgTable(
   }),
 );
 
-export const subscribers = pgTable("subscribers", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
-  isActive: boolean("is_active").default(true).notNull(),
-  isVerified: boolean("is_verified").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
 export const sessions = pgTable(
   "sessions",
   {
@@ -80,3 +72,31 @@ export const sessions = pgTable(
     index("sessions_expires_at_idx").on(table.expiresAt),
   ],
 );
+
+export const subscribers = pgTable("subscribers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  email: varchar("email", { length: 320 }).notNull().unique(),
+
+  isVerified: boolean("is_verified").notNull().default(false),
+
+  isActive: boolean("is_active").notNull().default(false),
+
+  verificationTokenHash: varchar("verification_token_hash", {
+    length: 64,
+  }),
+
+  verificationTokenExpiresAt: timestamp("verification_token_expires_at", {
+    withTimezone: true,
+  }),
+
+  unsubscribeToken: varchar("unsubscribe_token", {
+    length: 64,
+  })
+    .notNull()
+    .unique(),
+
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});

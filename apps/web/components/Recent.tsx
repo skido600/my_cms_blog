@@ -52,7 +52,7 @@ function normalizePost(p: any): Post {
 function PostCard({ post }: { post: Post }) {
   return (
     <Link
-      href={`/posts/${post.slug}`}
+      href={`/post/${post.slug}`}
       className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900">
       <div className="relative aspect-16/10 w-full overflow-hidden bg-linear-to-br from-neutral-200 to-neutral-300 dark:from-neutral-800 dark:to-neutral-700">
         {post.header_Image_UrL && (
@@ -68,9 +68,13 @@ function PostCard({ post }: { post: Post }) {
 
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400">
-          <span className="font-medium capitalize text-blue-600">
-            {post.categories[0]}
-          </span>
+          {post.categories.slice(0, 3).map((cat) => (
+            <span
+              key={cat}
+              className="rounded-full bg-black px-3 py-1 font-medium capitalize text-white dark:bg-white dark:text-black">
+              {cat}
+            </span>
+          ))}
           <span>{post.date}</span>
         </div>
 

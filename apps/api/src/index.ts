@@ -2,6 +2,10 @@ import { Hono } from "hono";
 import { logger } from "hono/logger";
 import authRoutes from "./router/auth";
 import postRequest from "./router/post";
+import subscriberRoutes from "./router/subscriber.routes";
+import { start } from "workflow/api";
+import { monthlyReminderWorkflow } from "../workflows/monthly-reminder";
+import { env } from "./util/env";
 
 const app = new Hono();
 app.use(logger());
@@ -29,6 +33,9 @@ v1.get("/", (c) => {
 });
 v1.route("/auth", authRoutes);
 v1.route("/admin", postRequest);
+v1.route("/subscribe", subscriberRoutes);
 app.route("/", v1);
 
+const run = await start(monthlyReminderWorkflow, []);
+console.log("Run started:", run.runId);
 export default app;

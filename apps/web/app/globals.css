@@ -43,7 +43,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
-
+/* @plugin "@tailwindcss/typography"; */
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -125,7 +125,6 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-mona-sans), sans-serif;
- 
 }
 
 .loader {

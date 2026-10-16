@@ -1,0 +1,20 @@
+{
+  "runId": "wrun_01M516HFZCGY23FQ6W2HJMGS6F",
+  "stepId": "step_01M516HFZC72TXEEH79AVBRPHV",
+  "stepName": "step//./workflows/monthly-reminder//getNextMonthStart",
+  "status": "completed",
+  "input": {
+    "__type": "Uint8Array",
+    "data": "ZGV2bFt7ImFyZ3MiOjEsImNsb3N1cmVWYXJzIjotMSwidGhpc1ZhbCI6LTF9LFtdXQ=="
+  },
+  "attempt": 1,
+  "startedAt": "2026-10-16T01:52:13.726Z",
+  "createdAt": "2026-10-16T01:52:13.726Z",
+  "updatedAt": "2026-10-16T01:52:13.802Z",
+  "specVersion": 8,
+  "output": {
+    "__type": "Uint8Array",
+    "data": "ZGV2bFsxNzkzNTIzNjAwMDAwXQ=="
+  },
+  "completedAt": "2026-10-16T01:52:13.802Z"
+}

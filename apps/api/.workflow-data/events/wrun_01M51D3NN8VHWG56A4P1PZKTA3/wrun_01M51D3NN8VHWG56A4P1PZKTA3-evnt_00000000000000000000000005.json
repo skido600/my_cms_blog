@@ -1,0 +1,15 @@
+{
+  "eventType": "step_created",
+  "runId": "wrun_01M51D3NN8VHWG56A4P1PZKTA3",
+  "eventId": "evnt_00000000000000000000000005",
+  "createdAt": "2026-10-16T03:47:07.387Z",
+  "specVersion": 8,
+  "correlationId": "step_01M51D3NN8813AN8H4W824AMD0",
+  "eventData": {
+    "stepName": "step//./workflows/monthly-reminder//sendReminders",
+    "input": {
+      "__type": "Uint8Array",
+      "data": "ZGV2bFt7ImFyZ3MiOjEsImNsb3N1cmVWYXJzIjotMSwidGhpc1ZhbCI6LTF9LFtdXQ=="
+    }
+  }
+}

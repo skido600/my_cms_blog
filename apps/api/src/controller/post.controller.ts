@@ -7,6 +7,8 @@ import { uploadImage } from "../util/uploadimage";
 import { generateUniqueSlug } from "../util/slug";
 import { redis } from "../util/redis";
 import { calculateReadTime } from "../util/read-time";
+import { start } from "workflow/api";
+import { newPostWorkflow } from "../../workflows/new-post";
 
 export const createPost = async (c: Context) => {
   try {
@@ -95,7 +97,11 @@ export const createPost = async (c: Context) => {
       "posts:recent",
       "posts:categories",
     );
-
+    if (post) {
+      await start(newPostWorkflow, [
+        { title: post.title, excerpt: post.description, slug: post.slug },
+      ]);
+    }
     const { header_Image_public, ...postWithoutPublicId } = post;
 
     return c.json(

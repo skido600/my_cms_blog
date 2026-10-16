@@ -45,11 +45,12 @@ export const useGetRecentPosts = () => {
   });
 };
 
-export const useGetPostBySlug = (slug: string) => {
+export const useGetPostBySlug = (slug: string, initialData?: any) => {
   return useQuery({
     queryKey: ["post", slug],
     queryFn: () => getPostBySlug(slug),
     enabled: !!slug,
+    initialData,
   });
 };
 

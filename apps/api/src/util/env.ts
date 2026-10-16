@@ -11,6 +11,9 @@ export const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string(),
   COOKIE_SECRET: z.string(),
   VERCEL_ENV: z.string(),
+  API_URL: z.string(),
+  WEB_URL: z.string(),
+  ADMIN_SECRET: z.string(),
 });
 
 export const env = envSchema.parse(process.env);

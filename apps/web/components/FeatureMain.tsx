@@ -50,7 +50,7 @@ function normalizePost(p: any): Post {
 function FeaturedCard({ post }: { post: Post }) {
   return (
     <Link
-      href={`/posts/${post.slug}`}
+      href={`/post/${post.slug}`}
       className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:shadow-lg md:col-span-2 lg:row-span-2 dark:border-neutral-800 dark:bg-neutral-900">
       <PostImage
         header_Image_UrL={post.header_Image_UrL}
@@ -97,7 +97,7 @@ function FeaturedCard({ post }: { post: Post }) {
 function PostCard({ post }: { post: Post }) {
   return (
     <Link
-      href={`/posts/${post.slug}`}
+      href={`/post/${post.slug}`}
       className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900">
       <PostImage
         header_Image_UrL={post.header_Image_UrL}

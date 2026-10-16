@@ -11,6 +11,8 @@ export default function FooterWrapper() {
     "/login",
     "/authorized/all",
     "/authorized/admin",
+    "/verify",
+    "/unsubscribe",
   ].includes(pathname);
 
   if (hideFooter) return null;
