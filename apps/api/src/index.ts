@@ -6,7 +6,6 @@ import subscriberRoutes from "./router/subscriber.routes";
 import { start } from "workflow/api";
 import { monthlyReminderWorkflow } from "../workflows/monthly-reminder";
 import { env } from "./util/env";
-import { rateLimiter } from "../middleware/rate-limit";
 
 const app = new Hono();
 app.use(logger());
@@ -44,5 +43,5 @@ v1.get("/cron/monthly-reminder", async (c) => {
   const run = await start(monthlyReminderWorkflow, []);
   return c.json({ success: true, runId: run.runId });
 });
-
+app.route("/", v1);
 export default app;
