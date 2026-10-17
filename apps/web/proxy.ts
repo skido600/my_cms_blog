@@ -13,18 +13,12 @@ export function proxy(request: NextRequest) {
   const isProtected = protectedPaths.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
-  const isLoginPage = pathname === "/login";
 
   // not logged in -> cannot open protected pages
   if (isProtected && !isLoggedIn) {
     const url = new URL("/login", request.url);
     url.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(url);
-  }
-
-  // logged in -> cannot open the login page
-  if (isLoginPage && isLoggedIn) {
-    return NextResponse.redirect(new URL("/authorized/all", request.url));
   }
 
   return NextResponse.next();

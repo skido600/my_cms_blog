@@ -19,37 +19,22 @@ async function scheduleNextCycle() {
   await start(monthlyReminderWorkflow, []);
 }
 
-// export async function monthlyReminderWorkflow() {
-//   "use workflow";
-
-//   const wakeAt = await getNextMonthStart();
-
-//   await sleep(new Date(wakeAt));
-
-//   await sendReminders();
-//   await scheduleNextCycle();
-// }
-
-// export async function monthlyReminderWorkflow() {
-//   "use workflow";
-
-//   const testMode = process.env.REMINDER_TEST === "true";
-
-//   if (testMode) {
-//     await sleep("15s");
-//   } else {
-//     const wakeAt = await getNextMonthStart();
-//     await sleep(new Date(wakeAt));
-//   }
-
-//   await sendReminders();
-
-//   if (!testMode) await scheduleNextCycle();
-// }
 export async function monthlyReminderWorkflow() {
   "use workflow";
 
-  await sleep("2s");
+  const wakeAt = await getNextMonthStart();
+
+  await sleep(new Date(wakeAt));
 
   await sendReminders();
+  await scheduleNextCycle();
 }
+
+// testing
+// export async function monthlyReminderWorkflow() {
+//   "use workflow";
+
+//   await sleep("2s");
+
+//   await sendReminders();
+// }

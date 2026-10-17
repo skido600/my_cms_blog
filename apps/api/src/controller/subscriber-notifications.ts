@@ -7,13 +7,15 @@ import {
   monthlyReminderEmail,
   newPostEmail,
 } from "../util/subscriber-templates";
-
+import { buildWhatsAppLink } from "../util/whatsapp";
 const API_URL = env.API_URL;
 const WEB_URL = env.WEB_URL;
 
 const unsubscribeLink = (token: string) =>
   `${API_URL}/api/v1/subscribe/unsubscribe?token=${token}`;
-
+const contactUrl = buildWhatsAppLink(
+  "Hello Chinecherem, I have something for you.",
+);
 const getActiveSubscribers = () =>
   db
     .select({

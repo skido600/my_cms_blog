@@ -1,0 +1,29 @@
+{
+  "runId": "wrun_01M53NH2HPNQE1NW9WSZSVW2N9",
+  "deploymentId": "dpl_local@bundled",
+  "workflowName": "workflow//./workflows/monthly-reminder//monthlyReminderWorkflow",
+  "specVersion": 8,
+  "executionContext": {
+    "traceCarrier": {},
+    "workflowCoreVersion": "5.2.2",
+    "nodeVersion": "24.20.0",
+    "features": {
+      "encryption": false
+    },
+    "hookResumeInputVersion": 1
+  },
+  "input": {
+    "__type": "Uint8Array",
+    "data": "ZGV2bFtbXV0="
+  },
+  "createdAt": "2026-10-17T00:52:27.395Z",
+  "startedAt": "2026-10-17T00:52:33.280Z",
+  "status": "completed",
+  "output": {
+    "__type": "Uint8Array",
+    "data": "ZGV2bC0x"
+  },
+  "completedAt": "2026-10-17T00:52:39.452Z",
+  "updatedAt": "2026-10-17T00:52:39.452Z",
+  "attributes": {}
+}

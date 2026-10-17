@@ -79,19 +79,19 @@ export const subscribe = async (c: Context) => {
         message: "This email is already subscribed.",
       });
     }
-   if (
-     existing &&
-     !existing.isVerified &&
-     existing.verificationTokenHash &&
-     existing.verificationTokenExpiresAt &&
-     existing.verificationTokenExpiresAt.getTime() > Date.now()
-   ) {
-     return c.json({
-       success: true,
-       message:
-         "A verification email has already been sent. Please check your inbox.",
-     });
-   }
+    if (
+      existing &&
+      !existing.isVerified &&
+      existing.verificationTokenHash &&
+      existing.verificationTokenExpiresAt &&
+      existing.verificationTokenExpiresAt.getTime() > Date.now()
+    ) {
+      return c.json({
+        success: true,
+        message:
+          "A verification email has already been sent. Please check your inbox.",
+      });
+    }
     const token = randomBytes(32).toString("hex");
     const tokenHash = hashToken(token);
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);

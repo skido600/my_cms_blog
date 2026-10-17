@@ -1,0 +1,13 @@
+{
+  "eventType": "step_started",
+  "specVersion": 8,
+  "correlationId": "step_01M53SXP7M9MR9KHVAGSMWT5DY",
+  "eventData": {
+    "stepName": "step//./workflows/monthly-reminder//getNextMonthStart",
+    "workflowName": "workflow//./workflows/monthly-reminder//monthlyReminderWorkflow",
+    "ownerMessageId": "msg_01M53SXP8AQG97TBDAN3GMHAQZ"
+  },
+  "runId": "wrun_01M53SXP7MFRQAQPHXF7T0W7BG",
+  "eventId": "evnt_00000000000000000000000004",
+  "createdAt": "2026-10-17T02:09:20.512Z"
+}

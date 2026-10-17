@@ -135,8 +135,6 @@ function PostCard({ post }: { post: Post }) {
 function Feature() {
   const { data, isLoading, isError } = useGetAllPosts();
 
-  console.log(data, "data");
-
   const rawPosts: unknown[] = Array.isArray(data)
     ? data
     : (data?.posts ?? data?.data ?? []);
@@ -176,13 +174,6 @@ function Feature() {
             ))}
           </div>
         )}
-
-        <Link
-          href="/posts"
-          className="mt-8 flex items-center justify-center gap-1 text-sm font-medium text-neutral-950 hover:underline sm:hidden dark:text-white">
-          View all
-          <ArrowRight size={16} />
-        </Link>
       </div>
     </section>
   );

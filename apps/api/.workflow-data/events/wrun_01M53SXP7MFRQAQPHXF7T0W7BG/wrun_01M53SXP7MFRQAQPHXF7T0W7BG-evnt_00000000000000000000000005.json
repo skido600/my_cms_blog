@@ -1,0 +1,24 @@
+{
+  "eventType": "step_completed",
+  "specVersion": 8,
+  "correlationId": "step_01M53SXP7M9MR9KHVAGSMWT5DY",
+  "eventData": {
+    "stepName": "step//./workflows/monthly-reminder//getNextMonthStart",
+    "workflowName": "workflow//./workflows/monthly-reminder//monthlyReminderWorkflow",
+    "result": {
+      "__type": "Uint8Array",
+      "data": "ZGV2bFsxNzkzNTIzNjAwMDAwXQ=="
+    },
+    "ttfs": 5517,
+    "rsfs": 869,
+    "finalSchedulingReplay": 840,
+    "optimizations": [
+      "turbo",
+      "lazyStepStart",
+      "optimisticStart"
+    ]
+  },
+  "runId": "wrun_01M53SXP7MFRQAQPHXF7T0W7BG",
+  "eventId": "evnt_00000000000000000000000005",
+  "createdAt": "2026-10-17T02:09:20.610Z"
+}

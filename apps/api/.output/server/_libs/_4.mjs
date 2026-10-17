@@ -1,0 +1,13 @@
+import { createRequire as __wkfCreateRequire } from "node:module";
+if (typeof require === "undefined") globalThis.require = __wkfCreateRequire(import.meta.url);
+import { import_extension, import_permessage_deflate, import_receiver, import_sender, import_stream, import_subprotocol, import_websocket, import_websocket_server, init_wrapper, wrapper_default } from "./@workflow/core+[...].mjs";
+init_wrapper();
+var PerMessageDeflate = import_permessage_deflate.default;
+var Receiver = import_receiver.default;
+var Sender = import_sender.default;
+var WebSocket = import_websocket.default;
+var WebSocketServer = import_websocket_server.default;
+var createWebSocketStream = import_stream.default;
+var extension = import_extension.default;
+var subprotocol = import_subprotocol.default;
+export { PerMessageDeflate, Receiver, Sender, WebSocket, WebSocketServer, createWebSocketStream, wrapper_default as default, extension, subprotocol };

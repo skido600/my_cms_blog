@@ -14,6 +14,8 @@ export const envSchema = z.object({
   API_URL: z.string(),
   WEB_URL: z.string(),
   ADMIN_SECRET: z.string(),
+  UPSTASH_REDIS_REST_TOKEN: z.string(),
+  UPSTASH_REDIS_REST_URL: z.string(),
 });
 
 export const env = envSchema.parse(process.env);

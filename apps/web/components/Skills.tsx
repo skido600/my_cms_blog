@@ -15,21 +15,21 @@ const SkillList = [
   "Drizzle ORM",
   "Redis",
   "Firebase",
-  "REST APIs",
-  "API Development",
+  "Kafta",
+
   "Full-Stack Development",
   "Backend Development",
   "Frontend Development",
-  "Authentication & Authorization",
-  "Git & GitHub",
+
+  "Ci & Cd",
   "Docker",
-  "Cloudinary",
+
   "TanStack React Query",
-  "Zod",
+
   "Problem Solving",
-  "Figma",
+
   "Web Design",
-  "Wireframing",
+
   "Framer Motion",
   "SEO",
   "AI-Powered Web Systems",

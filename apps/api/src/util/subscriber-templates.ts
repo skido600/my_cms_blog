@@ -1,4 +1,5 @@
 import { escapeHtml } from "./email";
+import { buildWhatsAppLink } from "./whatsapp";
 
 const subscriber = (verificationUrl: string) => {
   const safeUrl = escapeHtml(verificationUrl);

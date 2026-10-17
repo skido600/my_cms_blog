@@ -1,15 +1,35 @@
-import Redis from "ioredis";
+import { Redis } from "@upstash/redis";
+import { env } from "./env";
 
-export const redis = new Redis("redis://localhost:6379");
-
-redis.on("connect", () => {
-  console.log("Redis connected");
+export const redis = new Redis({
+  url: env.UPSTASH_REDIS_REST_URL,
+  token: env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-redis.on("ready", () => {
-  console.log("Redis is ready");
-});
+export const THREE_DAYS = 3 * 24 * 60 * 60;
 
-redis.on("error", (err) => {
-  console.error("Redis error:", err);
-});
+export const POST_CACHE_KEYS = [
+  "posts:all",
+  "posts:featured",
+  "posts:recent",
+  "posts:categories",
+] as const;
+
+export async function invalidatePostCache() {
+  try {
+    await redis.del(...POST_CACHE_KEYS);
+  } catch (error) {
+    console.error("Redis cache invalidation failed:", error);
+  }
+}
+
+export async function checkRedisConnection() {
+  try {
+    const result = await redis.ping();
+    console.log("Redis connected successfully:", result);
+  } catch (error) {
+    console.error("Redis connection failed:", error);
+  }
+}
+
+void checkRedisConnection();

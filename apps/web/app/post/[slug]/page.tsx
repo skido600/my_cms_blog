@@ -9,7 +9,7 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlugServer(slug);
-  console.log(post.post, "slug");
+
   if (!post) return { title: "Post not found" };
 
   const url = `${process.env.NEXT_PUBLIC_SITE_URL}/posts/${slug}`;

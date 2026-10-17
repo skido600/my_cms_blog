@@ -23,6 +23,9 @@ importers:
       '@neondatabase/serverless':
         specifier: ^1.1.0
         version: 1.1.0
+      '@upstash/redis':
+        specifier: ^1.39.0
+        version: 1.39.0
       argon2:
         specifier: ^0.45.1
         version: 0.45.1
@@ -34,7 +37,7 @@ importers:
         version: 18.0.1
       drizzle-orm:
         specifier: 1.0.0-rc.4
-        version: 1.0.0-rc.4(@neondatabase/serverless@1.1.0)(bun-types@1.4.3)(zod@4.6.5)
+        version: 1.0.0-rc.4(@neondatabase/serverless@1.1.0)(@upstash/redis@1.39.0)(bun-types@1.4.3)(zod@4.6.5)
       hono:
         specifier: ^4.13.8
         version: 4.13.8
@@ -2039,6 +2042,9 @@ packages:
 
   '@ungap/structured-clone@1.4.0':
     resolution: {integrity: sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ==}
+
+  '@upstash/redis@1.39.0':
+    resolution: {integrity: sha512-VwkpYTdxSfjSulQS5h16NHtg/1UEheBfvez2AeGKinAujOoGXhXCcohQRzsQ/d2g/XzbjzTVGhG8Ds8uOI0Mxg==}
 
   '@vercel/cli-auth@0.0.1':
     resolution: {integrity: sha512-CnqiuMlZ4pjs2LCPYiR6aLKPPd3Xb8SBI1Y7eotXKgpx6qgrGNY+E7EIyUt5ErGHJGIrCZyGG5WEo4bHtVmz2Q==}
@@ -4469,6 +4475,9 @@ packages:
   unbzip2-stream@1.4.3:
     resolution: {integrity: sha512-mlExGW4w71ebDJviH16lQLtZS32VKqsSfk80GCfUlwT/4/hNRFsoscrF/c++9xinkMzECL1uL9DDwXqFWkruPg==}
 
+  uncrypto@0.1.3:
+    resolution: {integrity: sha512-Ql87qFHB3s/De2ClA9e0gsnS6zXG27SkTiSJwjCc9MebbfapQfuPzumMIUMi38ezPZVNFcHI9sUIepeQfw8J8Q==}
+
   unctx@2.5.0:
     resolution: {integrity: sha512-p+Rz9x0R7X+CYDkT+Xg8/GhpcShTlU8n+cf9OtOEf7zEQsNcCZO1dPKNRDqvUTaq+P32PMMkxWHwfrxkqfqAYg==}
 
@@ -6080,6 +6089,10 @@ snapshots:
 
   '@ungap/structured-clone@1.4.0': {}
 
+  '@upstash/redis@1.39.0':
+    dependencies:
+      uncrypto: 0.1.3
+
   '@vercel/cli-auth@0.0.1':
     dependencies:
       async-listen: 3.0.0
@@ -6859,9 +6872,10 @@ snapshots:
       get-tsconfig: 4.14.3
       jiti: 2.7.0
 
-  drizzle-orm@1.0.0-rc.4(@neondatabase/serverless@1.1.0)(bun-types@1.4.3)(zod@4.6.5):
+  drizzle-orm@1.0.0-rc.4(@neondatabase/serverless@1.1.0)(@upstash/redis@1.39.0)(bun-types@1.4.3)(zod@4.6.5):
     optionalDependencies:
       '@neondatabase/serverless': 1.1.0
+      '@upstash/redis': 1.39.0
       bun-types: 1.4.3
       zod: 4.6.5
 
@@ -8966,6 +8980,8 @@ snapshots:
     dependencies:
       buffer: 5.7.1
       through: 2.3.8
+
+  uncrypto@0.1.3: {}
 
   unctx@2.5.0:
     dependencies:
