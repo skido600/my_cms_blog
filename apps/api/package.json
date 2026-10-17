@@ -1,8 +1,7 @@
 {
   "name": "api",
   "scripts": {
-    "dev": "nitro dev --port 3000",
-    "build": "nitro build"
+    "dev": "nitro dev --port 3000"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
