@@ -16,6 +16,7 @@ export const envSchema = z.object({
   ADMIN_SECRET: z.string(),
   UPSTASH_REDIS_REST_TOKEN: z.string(),
   UPSTASH_REDIS_REST_URL: z.string(),
+  CRON_SECRET: z.string(),
 });
 
 export const env = envSchema.parse(process.env);

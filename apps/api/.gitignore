@@ -1,9 +1,20 @@
 # deps
 node_modules/
-/.swc
-./output
-output
-.output
-./output
+
+# build output
+.output/
+.vercel/
+.swc/
+.turbo/
+dist/
+.next/
+
+# env files (secrets)
 .env
-./env
+.env.*
+!.env.example
+
+# logs
+*.log
+.swc
+./swc

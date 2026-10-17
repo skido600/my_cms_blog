@@ -23,18 +23,8 @@ export async function monthlyReminderWorkflow() {
   "use workflow";
 
   const wakeAt = await getNextMonthStart();
-
   await sleep(new Date(wakeAt));
 
+  await scheduleNextCycle(); // chain survives even if sending fails
   await sendReminders();
-  await scheduleNextCycle();
 }
-
-// testing
-// export async function monthlyReminderWorkflow() {
-//   "use workflow";
-
-//   await sleep("2s");
-
-//   await sendReminders();
-// }

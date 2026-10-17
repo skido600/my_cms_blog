@@ -35,8 +35,14 @@ v1.get("/", (c) => {
 v1.route("/auth", authRoutes);
 v1.route("/admin", postRequest);
 v1.route("/subscribe", subscriberRoutes);
-app.route("/", v1);
+v1.get("/cron/monthly-reminder", async (c) => {
+  const auth = c.req.header("authorization");
+  if (!env.CRON_SECRET || auth !== `Bearer ${env.CRON_SECRET}`) {
+    return c.json({ success: false, message: "Unauthorized" }, 401);
+  }
 
-const run = await start(monthlyReminderWorkflow, []);
-console.log("Run started:", run.runId);
+  const run = await start(monthlyReminderWorkflow, []);
+  return c.json({ success: true, runId: run.runId });
+});
+
 export default app;
