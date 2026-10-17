@@ -6,6 +6,7 @@ import subscriberRoutes from "./router/subscriber.routes";
 import { start } from "workflow/api";
 import { monthlyReminderWorkflow } from "../workflows/monthly-reminder";
 import { env } from "./util/env";
+import { rateLimiter } from "../middleware/rate-limit";
 
 const app = new Hono();
 app.use(logger());
