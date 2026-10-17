@@ -13,7 +13,7 @@ const monaSans = Mona_Sans({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL as string;
+const siteUrl = "https://my-cms-blog-ktw2.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -57,9 +57,9 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: "Leo Wave | Chinecherem Personal Developer Blog",
+    title: "Leo Wave |  Personal Developer Blog",
     description:
-      "Explore my coding journey, programming tutorials, web development articles, and experiences building modern applications.",
+      "Explore more about Leowave — my coding journey, programming insights, tech entrepreneurship, lifestyle, personal growth, and experiences building modern applications. Sharing my ideas, ambitions, and life beyond the code.",
     url: siteUrl,
     siteName: "Leo Wave",
     images: [
