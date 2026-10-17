@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, Clock } from "lucide-react";
-import { useGetAllPosts } from "../hook/post";
+import { getAllFeatured } from "../hook/post";
 import { PostsSkeleton } from "../helper/PostsSkeleton";
 import { PostImage } from "./PostImage";
 
@@ -133,7 +133,7 @@ function PostCard({ post }: { post: Post }) {
 }
 
 function Feature() {
-  const { data, isLoading, isError } = useGetAllPosts();
+  const { data, isLoading, isError } = getAllFeatured();
 
   const rawPosts: unknown[] = Array.isArray(data)
     ? data
