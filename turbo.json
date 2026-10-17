@@ -6,7 +6,23 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"],
-      "env": ["BACKEND_URL"]
+      "env": [
+        "BACKEND_URL",
+        "DATABASE_URL",
+        "ADMIN_EMAIL",
+        "ADMIN_PASSWORD",
+        "JWT_ACCESS_SECRET",
+        "JWT_REFRESH_SECRET",
+        "CLOUDINARY_UPLOAD_PRESET",
+        "CLOUDINARY_CLOUD_NAME",
+        "COOKIE_SECRET",
+        "VERCEL_ENV",
+        "API_URL",
+        "WEB_URL",
+        "ADMIN_SECRET",
+        "UPSTASH_REDIS_REST_TOKEN",
+        "UPSTASH_REDIS_REST_URL"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]
