@@ -13,13 +13,13 @@ const monaSans = Mona_Sans({
   display: "swap",
 });
 
-const siteUrl = "http://localhost:4002";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL as string;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
 
   title: {
-    default: "Leo Wave | Chinecherem | Personal Developer Blog",
+    default: "Leo Wave | Personal Developer Blog",
     template: "%s | Leo Wave",
   },
 

@@ -12,15 +12,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!post) return { title: "Post not found" };
 
-  const url = `${process.env.NEXT_PUBLIC_SITE_URL}/posts/${slug}`;
+  const url = `${process.env.NEXT_PUBLIC_SITE_URL}/post/${slug}`;
 
   return {
     title: post.post.title,
-    description: post.post.description,
     alternates: { canonical: url },
     openGraph: {
       title: post.post.title,
-      description: post.post.description,
       url,
       type: "article",
       images: [
@@ -35,7 +33,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: {
       card: "summary_large_image",
       title: post.post.title,
-      description: post.post.description,
       images: [post.header_Image_UrL],
     },
   };
