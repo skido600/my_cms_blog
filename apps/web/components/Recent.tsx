@@ -128,7 +128,7 @@ function Recent() {
           </div>
 
           <Link
-            href="/posts"
+            href="/all"
             className="group flex shrink-0 items-center gap-1 text-sm font-medium text-neutral-950 dark:text-white">
             View all
             <ArrowRight
