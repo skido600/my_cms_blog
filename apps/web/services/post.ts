@@ -146,3 +146,14 @@ export const getPostBySlugServer = cache(async (slug: string) => {
     return null;
   }
 });
+export const registerPostView = async (slug: string) => {
+  const res = await fetch(`${API_URL}/${encodeURIComponent(slug)}/view`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error("Failed to register view");
+  return res.json() as Promise<{
+    success: boolean;
+    counted: boolean;
+    views?: number;
+  }>;
+};

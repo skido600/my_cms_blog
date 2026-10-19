@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState } from "react";
 import { CalendarDays, Clock, Eye } from "lucide-react";
+import { useRegisterView } from "../hook/useRegisterView";
 
 const MarkdownRenderer = lazy(() => import("./MarkdownRenderer"));
 
@@ -13,7 +14,8 @@ interface PostData {
   categories?: string[];
   createdAt?: string;
   readTime?: string;
-  views?: string;
+  views?: number | undefined;
+  slug?: string | undefined;
 }
 
 function formatDate(value?: string) {
@@ -29,7 +31,9 @@ function formatDate(value?: string) {
 
 export default function PostClient({ initialPost }: { initialPost: PostData }) {
   const date = formatDate(initialPost.createdAt);
+  const [views, setViews] = useState<number>(initialPost.views ?? 0);
 
+  useRegisterView(initialPost.slug, setViews);
   return (
     <section className="mx-auto w-full px-4 py-10 sm:max-w-[95%] lg:max-w-[75%]">
       {initialPost.header_Image_UrL && (
@@ -45,30 +49,26 @@ export default function PostClient({ initialPost }: { initialPost: PostData }) {
         </div>
       )}
 
-      {(date || initialPost.readTime || initialPost.views) && (
-        <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-neutral-200 bg-neutral-100 px-4 py-3 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
-          {date && (
-            <span className="flex items-center gap-2">
-              <CalendarDays size={16} aria-hidden />
-              <time dateTime={initialPost.createdAt}>{date}</time>
-            </span>
-          )}
+      <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-neutral-200 bg-neutral-100 px-4 py-3 text-sm text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-400">
+        {date && (
+          <span className="flex items-center gap-2">
+            <CalendarDays size={16} aria-hidden />
+            <time dateTime={initialPost.createdAt}>{date}</time>
+          </span>
+        )}
 
-          {initialPost.readTime && (
-            <span className="flex items-center gap-2">
-              <Clock size={16} aria-hidden />
-              {initialPost.readTime} min read
-            </span>
-          )}
+        {initialPost.readTime && (
+          <span className="flex items-center gap-2">
+            <Clock size={16} aria-hidden />
+            {initialPost.readTime} min read
+          </span>
+        )}
 
-          {initialPost.views !== undefined && (
-            <span className="flex items-center gap-2">
-              <Eye size={16} aria-hidden />
-              {initialPost.views} {initialPost.views === "1" ? "view" : "views"}
-            </span>
-          )}
-        </div>
-      )}
+        <span className="flex items-center gap-2">
+          <Eye size={16} aria-hidden />
+          {views} {views === 1 ? "view" : "views"}
+        </span>
+      </div>
 
       <h1 className="mb-8 text-3xl font-bold tracking-tight text-neutral-950 dark:text-white">
         {initialPost.title}

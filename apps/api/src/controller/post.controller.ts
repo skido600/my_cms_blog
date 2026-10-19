@@ -132,7 +132,6 @@ export const createPost = async (c: Context) => {
 export const getPostBySlug = async (c: Context) => {
   try {
     const slug = c.req.param("slug");
-
     if (!slug) {
       return c.json({ success: false, message: "Slug is required" }, 400);
     }
@@ -147,38 +146,41 @@ export const getPostBySlug = async (c: Context) => {
       return c.json({ success: false, message: "Post not found" }, 404);
     }
 
+    return c.json({ success: true, post: removePublicId(post) });
+  } catch (error) {
+    console.error("Get post by slug error:", error);
+    return c.json({ success: false, message: "Server error" }, 500);
+  }
+};
+export const registerView = async (c: Context) => {
+  try {
+    const slug = c.req.param("slug");
     const ip = getClientIp(c);
     const userAgent = c.req.header("user-agent") ?? "";
 
-    let views = post.views;
-    const shouldCount =
-      ip !== "unknown" &&
-      !isBot(userAgent) &&
-      !(post.viewedIPs ?? []).includes(ip);
-
-    if (shouldCount) {
-      const [updatedPost] = await db
-        .update(posts)
-        .set({
-          views: sql`${posts.views} + 1`,
-          viewedIPs: sql`array_append(COALESCE(${posts.viewedIPs}, '{}'), ${ip})`,
-        })
-        .where(
-          sql`${posts.id} = ${post.id}
-              AND NOT (${ip} = ANY(COALESCE(${posts.viewedIPs}, '{}')))`,
-        )
-        .returning({ views: posts.views });
-
-      // updatedPost is undefined if another request counted this IP first
-      views = updatedPost?.views ?? post.views;
+    if (!slug || ip === "unknown" || isBot(userAgent)) {
+      return c.json({ success: true, counted: false });
     }
+
+    const [updated] = await db
+      .update(posts)
+      .set({
+        views: sql`${posts.views} + 1`,
+        viewedIPs: sql`array_append(COALESCE(${posts.viewedIPs}, '{}'), ${ip})`,
+      })
+      .where(
+        sql`${posts.slug} = ${slug}
+            AND NOT (${ip} = ANY(COALESCE(${posts.viewedIPs}, '{}')))`,
+      )
+      .returning({ views: posts.views });
 
     return c.json({
       success: true,
-      post: { ...removePublicId(post), views },
+      counted: !!updated,
+      views: updated?.views,
     });
   } catch (error) {
-    console.error("Get post by slug error:", error);
+    console.error("Register view error:", error);
     return c.json({ success: false, message: "Server error" }, 500);
   }
 };

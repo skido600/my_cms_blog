@@ -10,6 +10,7 @@ import {
   getRecentPosts,
   getAllCategories,
   getPostsByCategory,
+  registerView,
 } from "../controller/post.controller";
 
 import { requireAuth } from "../../middleware/verifyToken";
@@ -31,7 +32,7 @@ postRequest.get("/category", getPostsByCategory);
 postRequest.get("/featured", getAllFeaturedPosts);
 postRequest.get("/recent", getRecentPosts);
 postRequest.get("/:slug", getPostBySlug);
-
+postRequest.post("/:slug/view", registerView);
 // Admin
 postRequest.post("/create", writeLimit, requireAuth, createPost);
 postRequest.put("/:id", writeLimit, requireAuth, updatePost);
