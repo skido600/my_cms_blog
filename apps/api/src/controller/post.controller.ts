@@ -155,11 +155,22 @@ export const getPostBySlug = async (c: Context) => {
 export const registerView = async (c: Context) => {
   try {
     const slug = c.req.param("slug");
-    const ip = getClientIp(c);
-    const userAgent = c.req.header("user-agent") ?? "";
+    if (!slug) {
+      return c.json(
+        { success: false, reason: "missing_slug", message: "Slug is required" },
+        400,
+      );
+    }
 
-    if (!slug || ip === "unknown" || isBot(userAgent)) {
-      return c.json({ success: true, counted: false });
+    const userAgent = c.req.header("user-agent") ?? "";
+    if (isBot(userAgent)) {
+      return c.json({ success: true, counted: false, reason: "bot" });
+    }
+
+    const ip = getClientIp(c);
+    if (ip === "unknown") {
+      console.warn("registerView: could not determine client IP");
+      return c.json({ success: true, counted: false, reason: "no_ip" });
     }
 
     const [updated] = await db
@@ -174,10 +185,34 @@ export const registerView = async (c: Context) => {
       )
       .returning({ views: posts.views });
 
+    if (updated) {
+      return c.json({
+        success: true,
+        counted: true,
+        reason: "new_view",
+        views: updated.views,
+      });
+    }
+
+    // Nothing updated: post doesn't exist, or this IP was already counted
+    const [existing] = await db
+      .select({ views: posts.views })
+      .from(posts)
+      .where(eq(posts.slug, slug))
+      .limit(1);
+
+    if (!existing) {
+      return c.json(
+        { success: false, reason: "post_not_found", message: "Post not found" },
+        404,
+      );
+    }
+
     return c.json({
       success: true,
-      counted: !!updated,
-      views: updated?.views,
+      counted: false,
+      reason: "already_counted",
+      views: existing.views,
     });
   } catch (error) {
     console.error("Register view error:", error);
