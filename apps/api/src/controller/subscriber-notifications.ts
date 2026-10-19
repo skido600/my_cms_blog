@@ -94,7 +94,6 @@ export async function sendMonthlyUnsubscribeReminder() {
     month: "long",
     timeZone: "Africa/Lagos",
   });
-  const contactUrl = `${WEB_URL}/contact`;
 
   return sendInBatches(list, (s) => {
     const unsubscribeUrl = unsubscribeLink(s.unsubscribeToken);

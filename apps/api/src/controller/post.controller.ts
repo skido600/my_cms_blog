@@ -1,4 +1,4 @@
-import { eq, desc, arrayContains } from "drizzle-orm";
+import { eq, desc, arrayContains, sql } from "drizzle-orm";
 import { db } from "../database";
 import { posts } from "../database/schema";
 import { createPostSchema } from "../validator/post.schema";
@@ -9,6 +9,7 @@ import { redis, THREE_DAYS, invalidatePostCache } from "../util/redis";
 import { calculateReadTime } from "../util/read-time";
 import { start } from "workflow/api";
 import { newPostWorkflow } from "../../workflows/new-post";
+import { getClientIp, isBot } from "../util/unique";
 
 const removePublicId = (post: any) => {
   const { header_Image_public, ...safePost } = post;
@@ -146,39 +147,35 @@ export const getPostBySlug = async (c: Context) => {
       return c.json({ success: false, message: "Post not found" }, 404);
     }
 
-    const forwardedFor = c.req.header("x-forwarded-for");
-
-    const ip =
-      forwardedFor?.split(",")[0].trim() ||
-      c.req.header("x-real-ip") ||
-      "unknown";
-
-    const viewedIPs = post.viewedIPs ?? [];
-    const alreadyViewed = ip === "unknown" || viewedIPs.includes(ip);
+    const ip = getClientIp(c);
+    const userAgent = c.req.header("user-agent") ?? "";
 
     let views = post.views;
+    const shouldCount =
+      ip !== "unknown" &&
+      !isBot(userAgent) &&
+      !(post.viewedIPs ?? []).includes(ip);
 
-    if (!alreadyViewed) {
-      const updatedIPs = [...viewedIPs, ip];
-
+    if (shouldCount) {
       const [updatedPost] = await db
         .update(posts)
         .set({
-          views: post.views + 1,
-          viewedIPs: updatedIPs,
+          views: sql`${posts.views} + 1`,
+          viewedIPs: sql`array_append(COALESCE(${posts.viewedIPs}, '{}'), ${ip})`,
         })
-        .where(eq(posts.id, post.id))
+        .where(
+          sql`${posts.id} = ${post.id}
+              AND NOT (${ip} = ANY(COALESCE(${posts.viewedIPs}, '{}')))`,
+        )
         .returning({ views: posts.views });
 
+      // updatedPost is undefined if another request counted this IP first
       views = updatedPost?.views ?? post.views;
     }
 
     return c.json({
       success: true,
-      post: {
-        ...removePublicId(post),
-        views,
-      },
+      post: { ...removePublicId(post), views },
     });
   } catch (error) {
     console.error("Get post by slug error:", error);
