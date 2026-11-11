@@ -540,3 +540,39 @@ export const deletePost = async (c: Context) => {
     return c.json({ success: false, message: "Server error" }, 500);
   }
 };
+
+export const getTwoRecentPosts = async (c: Context) => {
+  try {
+    const cacheKey = "posts:recent:4";
+    const cachedPosts = await redis.get<any[]>(cacheKey);
+
+    if (cachedPosts !== null) {
+      return c.json({
+        success: true,
+        source: "redis",
+        total: cachedPosts.length,
+        posts: cachedPosts,
+      });
+    }
+
+    const recentPosts = await db
+      .select()
+      .from(posts)
+      .orderBy(desc(posts.createdAt))
+      .limit(2);
+
+    const safePosts = recentPosts.map(removePublicId);
+
+    await redis.set(cacheKey, safePosts, { ex: THREE_DAYS });
+
+    return c.json({
+      success: true,
+      source: "postgres",
+      total: safePosts.length,
+      posts: safePosts,
+    });
+  } catch (error) {
+    console.error("Get recent posts error:", error);
+    return c.json({ success: false, message: "Server error" }, 500);
+  }
+};

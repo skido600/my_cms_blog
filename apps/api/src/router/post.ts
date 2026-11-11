@@ -10,6 +10,7 @@ import {
   getRecentPosts,
   getAllCategories,
   getPostsByCategory,
+  getTwoRecentPosts,
   registerView,
 } from "../controller/post.controller";
 
@@ -31,6 +32,7 @@ postRequest.get("/categories", getAllCategories);
 postRequest.get("/category", getPostsByCategory);
 postRequest.get("/featured", getAllFeaturedPosts);
 postRequest.get("/recent", getRecentPosts);
+postRequest.get("/recent-two", getTwoRecentPosts);
 postRequest.get("/:slug", getPostBySlug);
 postRequest.post("/:slug/view", registerView);
 // Admin
